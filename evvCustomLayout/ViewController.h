@@ -10,6 +10,10 @@
 
 @interface ViewController : UIViewController
 
-
 @end
 
+
+//helper methods.
+
+UIColor *Random_Color();
+CGFloat Random01(); //0~1 사이 부동소수점

@@ -6,6 +6,13 @@
 //  Copyright © 2016 EddieKwon. All rights reserved.
 //
 
+
+/*
+    
+    autolayouts 를 사용하지 않는 경우에 view 들을 정렬하는 함수들 구현.
+ 
+ */
+
 #import "ViewController.h"
 
 @interface ViewController ()
@@ -21,83 +28,84 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    // Do any additional setup after loading the view, typically from a nib.
-    
-    [self dnaRedraw:_containView lastWidth:_containView.bounds.size.width pad:10.0f];
-    
-    
-    
     _counterLabel.text = @"999888987666";
-        [_counterLabel sizeToFit];
     
-    CGFloat farRightPointX = _containView.frame.size.width;
+    [self centerAlignedY:_containView]; // 모든 항목을 우선 아래위로 가운데정렬함.
     
-    NSArray *seedViews = @[_counterLabel , _secondLabel ];
-    NSArray *paddings = @[@10 , @10 ];
+    NSArray *seedViews = @[_counterLabel ,_iconBoxView ,_secondLabel ];
+    NSArray *paddings = @[@172 ,@20, @10 ];
+    [self rightAlignedX:_containView seedViews:seedViews paddings:paddings];
+}
+
+/***
+ 
+ note:  맨 우측의 view 부터 순서대로 하나씩 우측 정렬을 함.
+ param: 기준이 되는 부모View
+ param: 정렬할 View 들
+ param: 정렬할 View 에 대한 각각의 우측 padding.
+ 
+ */
+
+- (void)rightAlignedX:(UIView*)momView seedViews:(NSArray*)seedViews paddings:(NSArray*)paddings{
     
+     for (UIView* aView in momView.subviews) { //sizeToFit applies if UILabes.
+        if ([aView isMemberOfClass:[UILabel class]]) {
+            [(UILabel*)aView sizeToFit];
+            NSLog(@"aView %@ name:%@", NSStringFromCGRect(  aView.frame) , [(UILabel*)aView text] );
+        }
+         
+         aView.backgroundColor = Random_Color(); //FOR DEBUG
+    }
+
+    CGFloat farRightPointX = momView.frame.size.width;
+
     for (int i = 0; i< seedViews.count ; i++) {
-        
+
         UIView* aView = (UIView*)seedViews[i];
-        
-        NSLog(@"aView %@ name:%@", NSStringFromCGRect(  aView.frame) , [(UILabel*)aView text] );
-        
+ 
         CGFloat aPadWidth = [paddings[i] floatValue];
         CGRect frm = aView.frame;
         CGFloat newOrigX = farRightPointX - ( aView.frame.size.width  + aPadWidth  );
         frm.origin.x = newOrigX;
         aView.frame = frm;
-        
+
         farRightPointX = farRightPointX - ( [(UIView*)seedViews[i] frame].size.width + [ paddings[i] floatValue] );
         
     }
+ 
+}
+/**
+ 자식뷰가 하나 만 있는경우만 해당.
+ 상하를 기준으로 가운데 정렬함.
+ */
+- (void)centerAlignedY:(UIView*)momView {
+    
+    for (UIView* aView in momView.subviews) {
+
+        CGRect newFrame = aView.frame;
+
+        CGFloat newY = (momView.bounds.size.height - aView.bounds.size.height )/2.0f;
+        
+        newFrame = CGRectMake(aView.frame.origin.x, newY, aView.bounds.size.width, aView.bounds.size.height);
+        
+        aView.frame = newFrame;
+
+    }
 }
 
-- (void)rightAligned:(UIView*)farRightView seedViews:(NSArray*)seedViews pads:(NSArray*)pads{
-    
-    
-    
-    
-}
-
-//- (CGFloat)dnaRedraw:(UIView*)seedView childView:(UIView*)childView pad:(CGFloat)pad{
-- (void)dnaRedraw:(UIView*)seedView lastWidth:(CGFloat)lastWidth pad:(CGFloat)pad{
-
-//    
-//    CGFloat maxSize = seedView.bounds.size.width;
-//
-//    
-//    
-//     _counterLabel.text = @"999888987666";
-//    [_counterLabel sizeToFit];
-//    
-    CGFloat seedWidth = seedView.bounds.size.width;
-//    CGRect frm = childView.frame;
-//    
-//    CGFloat newOrigX = seedWidth - ( childView.frame.size.width  + pad  );
-//    
-//    frm.origin.x = newOrigX;
-//    
-//    childView.frame = frm;
-//    
-//    return childView.frame.origin.x;
-////
-////    
-//
-//    
-//    _counterLabel.text = @"999888987666";
-//    
-//    CGRect frame = _counterLabel.frame;
-//    [_counterLabel sizeToFit];
-//    //frame.size.height = label.frame.size.height;
-//    
-//    _counterLabel.frame = frame;
-//    
-//    [_counterLabel sizeToFit];
-    
-}
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
 
 @end
+
+UIColor *Random_Color()
+{
+    return [UIColor colorWithRed:Random01()
+                         green:Random01()
+                          blue:Random01()
+                         alpha:1.0f];
+}
+
+CGFloat Random01() //0~1 사이 부동소수점
+{
+    return ((CGFloat) arc4random() / (CGFloat) UINT_MAX);
+}
+
